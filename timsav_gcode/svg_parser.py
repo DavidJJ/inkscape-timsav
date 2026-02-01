@@ -302,6 +302,7 @@ class SvgParser:
             trans = Transform(node.get("transform"))
             trans_new = trans_current @ trans
 
+            #If the node is a group, dive into the next layer.
             if node.tag == inkex.addNS('g', 'svg') or node.tag == 'g':
                 if node.get(inkex.addNS('groupmode', 'inkscape')) == 'layer':
                     node.get(inkex.addNS('label', 'inkscape'))

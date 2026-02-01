@@ -1,6 +1,6 @@
 class GCodeContext:
     def __init__(self, xy_feedrate, xy_travelrate, start_delay, stop_delay, pen_up_cmd, pen_down_cmd, pen_down_angle,
-                 pen_score_angle, pen_mark_angle, file):
+                 pen_score_angle, pen_mark_angle, cooling_as_motor, file):
         self.xy_feedrate = xy_feedrate
         self.xy_travelrate = xy_travelrate
         self.start_delay = start_delay
@@ -16,6 +16,7 @@ class GCodeContext:
         self.z_height = 0
         self.num_pages = 1
         self.continuous = False
+        self.cooling_as_motor = cooling_as_motor
         self.file = file
 
         self.drawing = False
@@ -30,7 +31,9 @@ class GCodeContext:
             "G92 X%.2f Y%.2f Z%.2f (you are here)" % (self.x_home, self.y_home, self.z_height),
             "G0 F%0.2f (Travel Feed Rate)" % self.xy_travelrate,
             "G1 F%0.2f (Cut Feed Rate)" % self.xy_feedrate,
+            "M8 (turn motor on using cooling)" if cooling_as_motor else "", #Turn the motor on if using cooling-as-motor
             ""
+
         ]
 
         self.postscript = [
@@ -39,6 +42,8 @@ class GCodeContext:
             "%s (pen up)" % self.pen_up_cmd,
             "G4 P%d (wait %dms)" % (self.stop_delay, self.stop_delay),
             "G0 X%0.2F Y%0.2F F%0.2F (go home)" % (self.x_home, self.y_home, self.xy_travelrate),
+            "M9 (turn motor off using cooling)" if cooling_as_motor else "",  #Turn the motor off if using cooling-as-motor
+            ""
             # "M18 (drives off)",
         ]
 
@@ -107,13 +112,13 @@ class GCodeContext:
 
     def start(self, cut_type):
         if cut_type == 1:
-            #Full cut
+            # Full cut
             self.codes.append("%s S%0.2F (pen down through)" % (self.pen_down_cmd, self.pen_down_angle))
         elif cut_type == 2:
-            #Score cut
+            # Score cut
             self.codes.append("%s S%0.2F (pen down score)" % (self.pen_down_cmd, self.pen_score_angle))
         elif cut_type == 3:
-            #Marking cut
+            # Marking cut
             self.codes.append("%s S%0.2F (pen down draw)" % (self.pen_down_cmd, self.pen_mark_angle))
         else:
             # Invalid color detected. Only pretend to cut.

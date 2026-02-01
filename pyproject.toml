@@ -1,0 +1,9 @@
+[project]
+name = "inkscape-timsav"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.9"
+dependencies = [
+    "inkex>=1.0.1",
+    "lxml>=6.0.2",
+]

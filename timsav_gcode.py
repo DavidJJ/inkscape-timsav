@@ -75,6 +75,7 @@ class TimSavGCodeGenerator(inkex.Effect):
         self.arg_parser.add_argument("--tab",
                                      action="store", type=str,
                                      dest="tab")
+        self.arg_parser.add_argument("--cooling-as-motor", action="store", type=bool, dest="cooling_as_motor")
 
     def save_raw(self, ret):
         self.context.generate()
@@ -86,6 +87,7 @@ class TimSavGCodeGenerator(inkex.Effect):
                                     self.options.pen_down_cmd,
                                     self.options.pen_down_angle, self.options.pen_score_angle,
                                     self.options.pen_mark_angle,
+                                    self.options.cooling_as_motor,
                                     self.options.input_file)
         parser = SvgParser(self.document.getroot())
         parser.parse()
