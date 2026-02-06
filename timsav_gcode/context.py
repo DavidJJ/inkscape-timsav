@@ -40,7 +40,7 @@ class GCodeContext:
             "",
             "(end of print job)",
             "%s (pen up)" % self.pen_up_cmd,
-            "G4 P%d (wait %dms)" % (self.stop_delay, self.stop_delay),
+            "G4 P%.3f (wait %.3f seconds)" % (self.stop_delay, self.stop_delay),
             "G0 X%0.2F Y%0.2F F%0.2F (go home)" % (self.x_home, self.y_home, self.xy_travelrate),
             "M9 (turn motor off using cooling)" if cooling_as_motor else "",  #Turn the motor off if using cooling-as-motor
             ""
@@ -49,9 +49,9 @@ class GCodeContext:
 
         self.registration = [
             "%s S%d (pen down)" % (self.pen_down_cmd, self.pen_down_angle),
-            "G4 P%d (wait %dms)" % (self.start_delay, self.start_delay),
+            "G4 P%.3f (wait %.3f seconds)" % (self.start_delay, self.start_delay),
             "%s (pen up)" % self.pen_up_cmd,
-            "G4 P%d (wait %dms)" % (self.stop_delay, self.stop_delay),
+            "G4 P%.3f (wait %.3f seconds)" % (self.stop_delay, self.stop_delay),
             # "M18 (disengage drives)",
             # "M01 (Was registration test successful?)",
             # "M17 (engage drives if YES, and continue)",
@@ -66,14 +66,14 @@ class GCodeContext:
         self.sheet_footer = [
             "(Start of sheet footer.)",
             "%s (pen up)" % self.pen_up_cmd,
-            "G4 P%d (wait %dms)" % (self.stop_delay, self.stop_delay),
+            "G4 P%.3f (wait %.3f seconds)" % (self.stop_delay, self.stop_delay),
             "G91 (relative mode)",
             "G0 Z15 F%0.2f" % self.z_feedrate,
             "G90 (absolute mode)",
             "G0 X%0.2f Y%0.2f F%0.2f" % (self.x_home, self.y_home, self.xy_feedrate),
             # "M01 (Have you retrieved the print?)",
             "(machine halts until 'okay')",
-            "G4 P%d (wait %dms)" % (self.start_delay, self.start_delay),
+            "G4 P%.3f (wait %.3f seconds)" % (self.start_delay, self.start_delay),
             "G91 (relative mode)",
             "G0 Z-15 F%0.2f (return to start position of current sheet)" % self.z_feedrate,
             "G0 Z-0.01 F%0.2f (move down one sheet)" % self.z_feedrate,
@@ -123,12 +123,12 @@ class GCodeContext:
         else:
             # Invalid color detected. Only pretend to cut.
             self.codes.append("%s (pen down invalid color)" % self.pen_up_cmd)
-        self.codes.append("G4 P%d (wait %dms)" % (self.start_delay, self.start_delay))
+        self.codes.append("G4 P%.3f (wait %.3f seconds)" % (self.start_delay, self.start_delay))
         self.drawing = True
 
     def stop(self):
         self.codes.append("%s (Pen Up)" % self.pen_up_cmd)
-        self.codes.append("G4 P%d (wait %dms)" % (self.stop_delay, self.stop_delay))
+        self.codes.append("G4 P%.3f (wait %.3f seconds)" % (self.stop_delay, self.stop_delay))
         self.drawing = False
 
     def go_to_point(self, x, y, stop=False):
@@ -139,7 +139,7 @@ class GCodeContext:
         else:
             if self.drawing:
                 self.codes.append("%s (Pen Up)" % self.pen_up_cmd)
-                self.codes.append("G4 P%d (wait %dms)" % (self.stop_delay, self.stop_delay))
+                self.codes.append("G4 P%.3f (wait %.3f seconds)" % (self.stop_delay, self.stop_delay))
                 self.drawing = False
             self.codes.append("G0 X%.2f Y%.2f " % (x, y))
         self.last = (x, y)
@@ -152,7 +152,7 @@ class GCodeContext:
         else:
             if not self.drawing:
                 self.codes.append("%s S%0.2F (pen down)" % (self.pen_down_cmd, self.pen_down_angle))
-                self.codes.append("G4 P%d (wait %dms)" % (self.start_delay, self.start_delay))
+                self.codes.append("G4 P%.3f (wait %.3f seconds)" % (self.start_delay, self.start_delay))
                 self.drawing = True
             self.codes.append("G1 X%0.2f Y%0.2f " % (x, y))
         self.last = (x, y)
