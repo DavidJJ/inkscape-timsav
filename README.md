@@ -6,7 +6,7 @@ G-Code files suitable for needle cutting with the [ERC TimSav](https://www.thing
 
 Disclaimer
 ===========================================
-I am not responsible for any damanage or harm that may have caused by this extension, do so at your own risk
+I am not responsible for any damage or harm that may have caused by this extension, do so at your own risk
 
 * Modified by: [David Just](https://github.com/DavidJJ/inkscape-timsav)
 * Modified by: [Spencer Schumann](https://github.com/spencerschumann)
@@ -16,6 +16,7 @@ I am not responsible for any damanage or harm that may have caused by this exten
 Credits
 =======
 
+* David Just enhanced color handling to give errors for unknown colors. Added support for cooling as motor control
 * Spencer Schumann renamed this extension from `unicorn` to `timsav_gcode` and fixed some stroke color handling problems
 * Brian Ho modified this extension to generate compatible g-code for TimSav (Robotini GRBL)  
 * Marty McGuire pulled this all together into an Inkscape extension.
@@ -58,7 +59,11 @@ Usage
 	* **File | Save a Copy**.
 	* Select **TimSav G-Code (\*.gcode)**.
 	* Save your file and load the new gcode
-	![Document Property](doc/image4.png)
+      *  ![Document Property](doc/image4.png)
+* Cooling as motor controller
+  To use the cooling commands to control the needle motor requires a second Arduino.
+  See [TimSav_Motor_Driver](https://github.com/DavidJJ/TimSav_Motor_Driver) project for details.
+
 
 TODOs
 =====

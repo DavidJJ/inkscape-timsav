@@ -21,9 +21,10 @@ from timsav_gcode.context import GCodeContext
 from timsav_gcode.svg_parser import SvgParser
 
 
-class TimSavGCodeGenerator(inkex.Effect):
+
+class TimSavGCodeGenerator(inkex.EffectExtension):
     def __init__(self):
-        inkex.Effect.__init__(self)
+        inkex.EffectExtension.__init__(self)
         self.setup()
         self.context = None
 
@@ -81,6 +82,7 @@ class TimSavGCodeGenerator(inkex.Effect):
         self.context.generate()
 
     def effect(self):
+
         self.context = GCodeContext(self.options.xy_feedrate, self.options.xy_travelrate,
                                     self.options.start_delay, self.options.stop_delay,
                                     self.options.pen_up_cmd,
