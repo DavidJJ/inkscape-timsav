@@ -21,9 +21,10 @@ from timsav_gcode.context import GCodeContext
 from timsav_gcode.svg_parser import SvgParser
 
 
-class TimSavGCodeGenerator(inkex.Effect):
+
+class TimSavGCodeGenerator(inkex.EffectExtension):
     def __init__(self):
-        inkex.Effect.__init__(self)
+        inkex.EffectExtension.__init__(self)
         self.setup()
         self.context = None
 
@@ -75,17 +76,20 @@ class TimSavGCodeGenerator(inkex.Effect):
         self.arg_parser.add_argument("--tab",
                                      action="store", type=str,
                                      dest="tab")
+        self.arg_parser.add_argument("--cooling-as-motor", action="store", type=bool, dest="cooling_as_motor")
 
     def save_raw(self, ret):
         self.context.generate()
 
     def effect(self):
+
         self.context = GCodeContext(self.options.xy_feedrate, self.options.xy_travelrate,
                                     self.options.start_delay, self.options.stop_delay,
                                     self.options.pen_up_cmd,
                                     self.options.pen_down_cmd,
                                     self.options.pen_down_angle, self.options.pen_score_angle,
                                     self.options.pen_mark_angle,
+                                    self.options.cooling_as_motor,
                                     self.options.input_file)
         parser = SvgParser(self.document.getroot())
         parser.parse()

@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
-  <_name>TimSav G-Code Output</_name>
+  <name>TimSav G-Code Output</name>
   <id>com.timsav.gcode</id>
   <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
   <dependency type="executable" location="extensions">timsav_gcode.py</dependency>
-  <dependency type="executable" location="extensions">inkex.py</dependency>
   <param name="tab" type="notebook">
-    <page name="plotter_setup" _gui-text="Setup">
-      <param name="pen-up-cmd" type="string" default="M5" _gui-text="Pen Up command">M5</param>
-      <param name="pen-down-cmd" type="string" default="M3" _gui-text="Pen Down command">M3</param>
-      <param name="pen-down-angle" type="float" min="0.0" max="180.0" _gui-text="Pen Down Angle">90</param>
-      <param name="pen-score-angle" type="float" min="0.0" max="180.0" _gui-text="Pen Score Angle">45</param>
-      <param name="pen-draw-angle" type="float" min="0.0" max="180.0" _gui-text="Pen Draw Angle">10</param>
-      <param name="start-delay" type="float" min="0.0" max="10.0" _gui-text="Delay after pen-down command before movement in seconds.">1</param>
-      <param name="stop-delay" type="float" min="0.0" max="10.0" _gui-text="Delay after pen-up command before movement in seconds.">1</param>
-      <param name="xy-feedrate" type="float" min="100.0" max="10000.0" _gui-text="XY axes feedrate in mm/min.">3500.0</param>
-      <param name="xy-travelrate" type="float" min="100.0" max="10000.0" _gui-text="XY axes travelrate in mm/min.">7000.0</param>
+    <page name="plotter_setup" gui-text="Setup">
+      <param name="pen-up-cmd" type="string" default="M5" gui-text="Needle Up command" gui-description="Command used to raise the needle to it's highest point. Usually 'M5'">M5</param>
+      <param name="pen-down-cmd" type="string" default="M3" gui-text="Needle Down command" gui-description="Command used to lower the needle to a given position. Usually 'M3'">M3</param>
+      <param name="pen-down-angle" type="float" min="0.0" max="180.0" gui-text="Needle Down Angle" gui-description="Servo angle to use for FULL cut (BLACK Lines).">90</param>
+      <param name="pen-score-angle" type="float" min="0.0" max="180.0" gui-text="Needle Score Angle" gui-description="Servo angle to use for SCORE cut (RED Lines).">45</param>
+      <param name="pen-draw-angle" type="float" min="0.0" max="180.0" gui-text="Needle Draw Angle" gui-description="Servo angle to use for DRAW cut (BLUE Lines).">10</param>
+      <param name="start-delay" type="float" min="0" max="10.000" gui-text="Delay after needle-down in seconds." gui-description="Add a delay after lowering the needle to allow time for the servo to finish moving">0.5</param>
+      <param name="stop-delay" type="float" min="0" max="10.000" gui-text="Delay after needle-up in seconds." gui-description="Add a delay after raising the needle to allow time for the servo to finish moving">0.5</param>
+      <param name="xy-feedrate" type="float" min="100.0" max="10000.0" gui-text="XY axes cut speed in mm/min.">3500.0</param>
+      <param name="xy-travelrate" type="float" min="100.0" max="10000.0" gui-text="XY axes travel speed in mm/min.">7000.0</param>
+      <param name="cooling-as-motor" type="bool" default="true" label="Cooling as Motor" gui-text="Use cooling to control needle motor" gui-description="Use M8 and M9 cooling commands to turn motor on and off" >true</param>
     </page>
   </param>
 
   <output>
     <extension>.gcode</extension>
     <mimetype>application/x-gcode</mimetype>
-    <_filetypename>TimSav Cutter G-Code (*.gcode)</_filetypename>
-    <_filetypetooltip>Toolpath for the TimSav Needle Cutter</_filetypetooltip>
+    <filetypename>TimSav Cutter G-Code (*.gcode)</filetypename>
+    <filetypetooltip>Toolpath for the TimSav Needle Cutter</filetypetooltip>
     <dataloss>true</dataloss>
   </output>
   <script>
-    <command reldir="extensions" interpreter="python">timsav_gcode.py</command>
+    <command location="inx" interpreter="python">timsav_gcode.py</command>
   </script>
 </inkscape-extension>

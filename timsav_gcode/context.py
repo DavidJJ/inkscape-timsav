@@ -1,6 +1,6 @@
 class GCodeContext:
     def __init__(self, xy_feedrate, xy_travelrate, start_delay, stop_delay, pen_up_cmd, pen_down_cmd, pen_down_angle,
-                 pen_score_angle, pen_mark_angle, file):
+                 pen_score_angle, pen_mark_angle, cooling_as_motor, file):
         self.xy_feedrate = xy_feedrate
         self.xy_travelrate = xy_travelrate
         self.start_delay = start_delay
@@ -16,6 +16,7 @@ class GCodeContext:
         self.z_height = 0
         self.num_pages = 1
         self.continuous = False
+        self.cooling_as_motor = cooling_as_motor
         self.file = file
 
         self.drawing = False
@@ -30,23 +31,27 @@ class GCodeContext:
             "G92 X%.2f Y%.2f Z%.2f (you are here)" % (self.x_home, self.y_home, self.z_height),
             "G0 F%0.2f (Travel Feed Rate)" % self.xy_travelrate,
             "G1 F%0.2f (Cut Feed Rate)" % self.xy_feedrate,
+            "M8 (turn motor on using cooling)" if cooling_as_motor else "", #Turn the motor on if using cooling-as-motor
             ""
+
         ]
 
         self.postscript = [
             "",
             "(end of print job)",
             "%s (pen up)" % self.pen_up_cmd,
-            "G4 P%d (wait %dms)" % (self.stop_delay, self.stop_delay),
+            "G4 P%.3f (wait %.3f seconds)" % (self.stop_delay, self.stop_delay),
             "G0 X%0.2F Y%0.2F F%0.2F (go home)" % (self.x_home, self.y_home, self.xy_travelrate),
+            "M9 (turn motor off using cooling)" if cooling_as_motor else "",  #Turn the motor off if using cooling-as-motor
+            ""
             # "M18 (drives off)",
         ]
 
         self.registration = [
             "%s S%d (pen down)" % (self.pen_down_cmd, self.pen_down_angle),
-            "G4 P%d (wait %dms)" % (self.start_delay, self.start_delay),
+            "G4 P%.3f (wait %.3f seconds)" % (self.start_delay, self.start_delay),
             "%s (pen up)" % self.pen_up_cmd,
-            "G4 P%d (wait %dms)" % (self.stop_delay, self.stop_delay),
+            "G4 P%.3f (wait %.3f seconds)" % (self.stop_delay, self.stop_delay),
             # "M18 (disengage drives)",
             # "M01 (Was registration test successful?)",
             # "M17 (engage drives if YES, and continue)",
@@ -61,14 +66,14 @@ class GCodeContext:
         self.sheet_footer = [
             "(Start of sheet footer.)",
             "%s (pen up)" % self.pen_up_cmd,
-            "G4 P%d (wait %dms)" % (self.stop_delay, self.stop_delay),
+            "G4 P%.3f (wait %.3f seconds)" % (self.stop_delay, self.stop_delay),
             "G91 (relative mode)",
             "G0 Z15 F%0.2f" % self.z_feedrate,
             "G90 (absolute mode)",
             "G0 X%0.2f Y%0.2f F%0.2f" % (self.x_home, self.y_home, self.xy_feedrate),
             # "M01 (Have you retrieved the print?)",
             "(machine halts until 'okay')",
-            "G4 P%d (wait %dms)" % (self.start_delay, self.start_delay),
+            "G4 P%.3f (wait %.3f seconds)" % (self.start_delay, self.start_delay),
             "G91 (relative mode)",
             "G0 Z-15 F%0.2f (return to start position of current sheet)" % self.z_feedrate,
             "G0 Z-0.01 F%0.2f (move down one sheet)" % self.z_feedrate,
@@ -106,18 +111,24 @@ class GCodeContext:
                     print(line)
 
     def start(self, cut_type):
-        if cut_type == 2:
+        if cut_type == 1:
+            # Full cut
+            self.codes.append("%s S%0.2F (pen down through)" % (self.pen_down_cmd, self.pen_down_angle))
+        elif cut_type == 2:
+            # Score cut
             self.codes.append("%s S%0.2F (pen down score)" % (self.pen_down_cmd, self.pen_score_angle))
         elif cut_type == 3:
+            # Marking cut
             self.codes.append("%s S%0.2F (pen down draw)" % (self.pen_down_cmd, self.pen_mark_angle))
         else:
-            self.codes.append("%s S%0.2F (pen down through)" % (self.pen_down_cmd, self.pen_down_angle))
-        self.codes.append("G4 P%d (wait %dms)" % (self.start_delay, self.start_delay))
+            # Invalid color detected. Only pretend to cut.
+            self.codes.append("%s (pen down invalid color)" % self.pen_up_cmd)
+        self.codes.append("G4 P%.3f (wait %.3f seconds)" % (self.start_delay, self.start_delay))
         self.drawing = True
 
     def stop(self):
         self.codes.append("%s (Pen Up)" % self.pen_up_cmd)
-        self.codes.append("G4 P%d (wait %dms)" % (self.stop_delay, self.stop_delay))
+        self.codes.append("G4 P%.3f (wait %.3f seconds)" % (self.stop_delay, self.stop_delay))
         self.drawing = False
 
     def go_to_point(self, x, y, stop=False):
@@ -128,7 +139,7 @@ class GCodeContext:
         else:
             if self.drawing:
                 self.codes.append("%s (Pen Up)" % self.pen_up_cmd)
-                self.codes.append("G4 P%d (wait %dms)" % (self.stop_delay, self.stop_delay))
+                self.codes.append("G4 P%.3f (wait %.3f seconds)" % (self.stop_delay, self.stop_delay))
                 self.drawing = False
             self.codes.append("G0 X%.2f Y%.2f " % (x, y))
         self.last = (x, y)
@@ -141,7 +152,7 @@ class GCodeContext:
         else:
             if not self.drawing:
                 self.codes.append("%s S%0.2F (pen down)" % (self.pen_down_cmd, self.pen_down_angle))
-                self.codes.append("G4 P%d (wait %dms)" % (self.start_delay, self.start_delay))
+                self.codes.append("G4 P%.3f (wait %.3f seconds)" % (self.start_delay, self.start_delay))
                 self.drawing = True
             self.codes.append("G1 X%0.2f Y%0.2f " % (x, y))
         self.last = (x, y)
